@@ -1,0 +1,31 @@
+name: Package HTML to EXE
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch: # This adds a manual button to run it whenever you want!
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Package HTML using Nativefier
+      run: |
+        npm install -g nativefier
+        nativefier --name "MyMobileBuiltApp" --platform "windows" "." ./dist
+        
+    - name: Upload Finished Executable
+      uses: actions/upload-artifact@v4
+      with:
+        name: Windows-HTML-Executable
+        path: dist/
+        
