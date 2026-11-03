@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ABRA FINANCES 🇺🇬 - BIG ENTERPRISE</title>
+<style>
+:root{--primary:#0d3b2e;--gold:#f9c74f;--green:#2a9d8f;--red:#e76f51;--light:#f8f9fa;--dark:#212529}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
+body{background:#eef2f1}
+.login-screen{position:fixed;inset:0;background:linear-gradient(135deg,#0d3b2e 0%,#2a9d8f 100%);display:flex;align-items:center;justify-content:center;z-index:9999}
+.login-box{background:white;padding:35px;border-radius:16px;width:92%;max-width:380px;box-shadow:0 20px 40px rgba(0,0,0,.3);text-align:center}
+.login-box h1{color:var(--primary);font-size:28px;margin-bottom:5px}
+.input{width:100%;padding:12px 14px;margin:10px 0;border:1.5px solid #ddd;border-radius:8px;font-size:15px}
+.btn{width:100%;padding:13px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer}
+.btn-gold{background:var(--gold);color:#000}
+.header{background:var(--primary);color:white;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100}
+.badge{background:var(--gold);color:#000;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:800}
+.nav{display:flex;gap:6px;padding:10px;background:white;overflow-x:auto;position:sticky;top:54px;z-index:99;box-shadow:0 2px 5px rgba(0,0,0,.08)}
+.nav button{padding:9px 14px;border:none;border-radius:20px;background:#e9ecef;white-space:nowrap;font-weight:600;cursor:pointer}
+.nav button.active{background:var(--primary);color:white}
+.page{display:none;padding:14px}.page.active{display:block}
+.card{background:white;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.stat{padding:14px;border-radius:12px;color:white}.stat h3{font-size:22px}.stat p{font-size:12px;opacity:.9}
+.kpi1{background:linear-gradient(135deg,#0d3b2e,#2a9d8f)}.kpi2{background:linear-gradient(135deg,#264653,#2a9d8f)}.kpi3{background:linear-gradient(135deg,#f4a261,#e76f51)}.kpi4{background:linear-gradient(135deg,#e76f51,#c1121f)}
+table{width:100%;border-collapse:collapse}th,td{padding:10px 8px;text-align:left;font-size:13px;border-bottom:1px solid #eee}th{background:#f8f9fa;color:var(--primary)}
+.client-img{width:38px;height:38px;border-radius:50%;object-fit:cover;background:#ddd}
+.tag{padding:3px 7px;border-radius:10px;font-size:10px;font-weight:700}.tag-paid{background:#d1e7dd;color:#0f5132}.tag-due{background:#fff3cd;color:#664d03}.tag-late{background:#f8d7da;color:#842029}
+</style>
+</head>
+<body>
+<div id="loginScreen" class="login-screen">
+  <div class="login-box">
+    <h1>ABRA FINANCES 🇺🇬</h1>
+    <small>BIG ENTERPRISE EDITION v2.0</small>
+    <p style="margin:15px 0 5px;font-weight:700;color:#0d3b2e">Staff Login</p>
+    <select id="role" class="input"><option value="Manager">Manager (Full Access)</option><option value="Cashier">Cashier (Collections)</option><option value="Loan Officer">Loan Officer (Clients)</option></select>
+    <input id="pin" class="input" type="password" placeholder="Enter PIN: 1234">
+    <button class="btn" onclick="login()">LOGIN TO ABRA 💰</button>
+    <p style="margin-top:12px;font-size:11px;color:#888">Demo PIN: 1234</p>
+  </div>
+</div>
+<div id="app" style="display:none">
+<div class="header"><h2>ABRA FINANCES 🇺🇬 <span class="badge" id="roleBadge">MANAGER</span></h2><div><small id="userTime"></small> <button onclick="logout()" style="margin-left:8px;background:#ffffff22;border:none;color:white;padding:5px 10px;border-radius:6px">Logout</button></div></div>
+<div class="nav">
+  <button class="active" onclick="showPage('dashboard',this)">📊 Dashboard</button>
+  <button onclick="showPage('clients',this)">👥 Clients</button>
+  <button onclick="showPage('loans',this)">💰 Loans</button>
+  <button onclick="showPage('collect',this)">💵 Collect</button>
+  <button onclick="showPage('cashbook',this)">📒 Cash Book</button>
+  <button onclick="showPage('reports',this)">📈 Reports</button>
+</div>
+<div id="dashboard" class="page active">
+  <div class="stat-grid">
+    <div class="stat kpi1"><p>Total Clients</p><h3 id="kpiClients">0</h3></div>
+    <div class="stat kpi2"><p>Active Loans</p><h3 id="kpiLoans">0</h3></div>
+    <div class="stat kpi3"><p>Cash Today</p><h3 id="kpiCash">UGX 0</h3></div>
+    <div class="stat kpi4"><p>Defaulters</p><h3 id="kpiDefault">0</h3></div>
+  </div>
+  <div class="card"><h3>💰 ABRA Big Boss Summary</h3><p style="font-size:13px;color:#555;margin-top:6px">Total Lent: <b id="totalLent">UGX 0</b> | Total Collected: <b id="totalCollected">UGX 0</b> | Profit: <b id="totalProfit" style="color:green">UGX 0</b></p></div>
+  <div class="card"><h3>⚠️ Loans Due Today</h3><table><thead><tr><th>Client</th><th>Amount</th><th>Status</th></tr></thead><tbody id="dueTable"></tbody></table></div>
+</div>
+<div id="clients" class="page">
+  <div class="card">
+    <h3>Add New Client (Big KYC)</h3>
+    <input id="cName" class="input" placeholder="Full Name">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><input id="cPhone" class="input" placeholder="Phone"><input id="cIdNo" class="input" placeholder="NIN / ID No"></div>
+    <input id="cLocation" class="input" placeholder="Business Location / Village">
+    <input id="cPhoto" class="input" type="file" accept="image/*">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><input id="cGuarantor" class="input" placeholder="Guarantor Name"><input id="cGuarantorPhone" class="input" placeholder="Guarantor Phone"></div>
+    <button class="btn btn-gold" onclick="addClient()">SAVE CLIENT + PHOTO 👤</button>
+  </div>
+  <div class="card"><h3>Client List</h3><table><thead><tr><th>Photo</th><th>Name</th><th>Phone</th><th>Guarantor</th></tr></thead><tbody id="clientTable"></tbody></table></div>
+</div>
+<div id="loans" class="page">
+  <div class="card">
+    <h3>Issue New Loan (Big Engine)</h3>
+    <select id="lClient" class="input"></select>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><input id="lAmount" class="input" type="number" placeholder="Loan Amount UGX"><input id="lInterest" class="input" type="number" placeholder="Interest % (e.g 20)" value="20"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px"><select id="lPlan" class="input"><option>Daily</option><option>Weekly</option><option selected>Monthly</option></select><input id="lDuration" class="input" type="number" placeholder="Duration (months)" value="3"><input id="lPenalty" class="input" type="number" placeholder="Late Penalty % (e.g 5)" value="5"></div>
+    <input id="lCollateral" class="input" placeholder="Collateral (e.g Land Title, Boda)">
+    <p style="font-size:13px;background:#eef2f1;padding:8px;border-radius:6px">Total to Pay: <b id="calcTotal">UGX 0</b> | <span id="calcInstall">0</span> per <span id="calcPlan">Month</span></p>
+    <button class="btn" onclick="issueLoan()">ISSUE LOAN 💸</button>
+  </div>
+  <div class="card"><h3>Active Loans</h3><table><thead><tr><th>Client</th><th>Lent</th><th>Total+Int</th><th>Balance</th><th>Plan</th></tr></thead><tbody id="loanTable"></tbody></table></div>
+</div>
+<div id="collect" class="page">
+  <div class="card">
+    <h3>Collect Payment</h3>
+    <select id="payLoan" class="input"></select>
+    <input id="payAmount" class="input" type="number" placeholder="Amount Paid UGX">
+    <select id="payMethod" class="input"><option>Cash</option><option>MTN MoMo</option><option>Airtel Money</option><option>Bank</option></select>
+    <button class="btn btn-gold" onclick="collectPayment()">COLLECT & PRINT RECEIPT 🖨️</button>
+    <div id="receipt" style="display:none;margin-top:12px;border:1px dashed #000;padding:12px"><h3 style="text-align:center">ABRA FINANCES 🇺🇬</h3><p style="text-align:center;font-size:11px">BIG ENTERPRISE - Receipt</p><hr><p id="receiptContent" style="font-size:13px"></p><button class="btn" onclick="window.print()">Print Receipt</button></div>
+  </div>
+</div>
+<div id="cashbook" class="page">
+  <div class="card"><h3>📒 Daily Cash Book</h3><table><thead><tr><th>Time</th><th>Type</th><th>Client</th><th>Method</th><th>Amount</th><th>By</th></tr></thead><tbody id="cashTable"></tbody></table><p style="margin-top:10px">Balance Today: <b id="cashBalance">UGX 0</b></p></div>
+</div>
+<div id="reports" class="page">
+  <div class="card"><h3>📈 Manager Reports</h3><button class="btn" onclick="exportCSV()" style="margin-top:8px">Export All Data to Excel (CSV)</button><button class="btn btn-gold" onclick="clearAll()" style="margin-top:8px;background:#e76f51;color:white">Clear All Data (Manager Only)</button><p style="font-size:12px;color:#666;margin-top:12px">ABRA FINANCES is 5x bigger than Harmony. Includes: Audit trail, Cashbook, KYC photos, Guarantors, Penalties, MoMo integration ready.</p></div>
+</div>
+</div>
+<script>
+let clients=JSON.parse(localStorage.getItem('abra_clients')||'[]');
+let loans=JSON.parse(localStorage.getItem('abra_loans')||'[]');
+let cash=JSON.parse(localStorage.getItem('abra_cash')||'[]');
+let currentRole='Manager';
+function login(){if(document.getElementById('pin').value!=='1234'){alert('Wrong PIN! Use 1234');return}currentRole=document.getElementById('role').value;document.getElementById('loginScreen').style.display='none';document.getElementById('app').style.display='block';document.getElementById('roleBadge').innerText=currentRole.toUpperCase();renderAll();setInterval(()=>{document.getElementById('userTime').innerText=new Date().toLocaleTimeString()},1000);}
+function logout(){location.reload()}
+function showPage(id,btn){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+function addClient(){let name=document.getElementById('cName').value.trim();if(!name){alert('Enter name');return}let file=document.getElementById('cPhoto').files[0];const save=(img)=>{clients.push({id:Date.now(),name,phone:document.getElementById('cPhone').value,idNo:document.getElementById('cIdNo').value,location:document.getElementById('cLocation').value,guarantor:document.getElementById('cGuarantor').value,gPhone:document.getElementById('cGuarantorPhone').value,photo:img||''});localStorage.setItem('abra_clients',JSON.stringify(clients));document.getElementById('cName').value='';renderAll();alert('Client saved! 👤');};if(file){let r=new FileReader();r.onload=e=>save(e.target.result);r.readAsDataURL(file);}else save('');}
+function issueLoan(){let cId=document.getElementById('lClient').value;let amt=parseFloat(document.getElementById('lAmount').value);if(!cId||!amt){alert('Select client & amount');return}let client=clients.find(c=>c.id==cId);let interest=parseFloat(document.getElementById('lInterest').value)||0;let total=amt+(amt*interest/100);let plan=document.getElementById('lPlan').value;let dur=parseInt(document.getElementById('lDuration').value)||1;loans.push({id:Date.now(),clientId:cId,clientName:client.name,principal:amt,interest,total,paid:0,balance:total,plan,duration:dur,penalty:document.getElementById('lPenalty').value,collateral:document.getElementById('lCollateral').value,date:new Date().toLocaleDateString()});cash.push({time:new Date().toLocaleString(),type:'OUT - Loan',client:client.name,method:'Cash',amount:-amt,by:currentRole});localStorage.setItem('abra_loans',JSON.stringify(loans));localStorage.setItem('abra_cash',JSON.stringify(cash));renderAll();alert('Loan issued! 💸');}
+function collectPayment(){let lId=document.getElementById('payLoan').value;let amt=parseFloat(document.getElementById('payAmount').value);if(!lId||!amt){alert('Select loan & amount');return}let loan=loans.find(l=>l.id==lId);loan.paid+=amt;loan.balance=loan.total-loan.paid;if(loan.balance<0)loan.balance=0;let method=document.getElementById('payMethod').value;cash.push({time:new Date().toLocaleString(),type:'IN - Collection',client:loan.clientName,method,amount:amt,by:currentRole});localStorage.setItem('abra_loans',JSON.stringify(loans));localStorage.setItem('abra_cash',JSON.stringify(cash));document.getElementById('receipt').style.display='block';document.getElementById('receiptContent').innerHTML=`Date: ${new Date().toLocaleString()}<br>Client: ${loan.clientName}<br>Loan Total: UGX ${loan.total.toLocaleString()}<br>Paid Now: UGX ${amt.toLocaleString()}<br>Balance: UGX ${loan.balance.toLocaleString()}<br>Method: ${method}<br>Collected By: ${currentRole}<br><br>Thank you for choosing ABRA FINANCES 🇺🇬`;renderAll();}
+function renderAll(){document.getElementById('kpiClients').innerText=clients.length;document.getElementById('kpiLoans').innerText=loans.filter(l=>l.balance>0).length;let todayCash=cash.filter(c=>c.amount>0).reduce((s,c)=>s+c.amount,0);document.getElementById('kpiCash').innerText='UGX '+todayCash.toLocaleString();document.getElementById('kpiDefault').innerText=loans.filter(l=>l.balance>0&&l.paid/l.total<0.5).length;let totalLent=loans.reduce((s,l)=>s+l.principal,0);let totalCol=cash.filter(c=>c.amount>0).reduce((s,c)=>s+c.amount,0);document.getElementById('totalLent').innerText='UGX '+totalLent.toLocaleString();document.getElementById('totalCollected').innerText='UGX '+totalCol.toLocaleString();document.getElementById('totalProfit').innerText='UGX '+(totalCol-totalLent>0?totalCol-totalLent:0).toLocaleString();document.getElementById('clientTable').innerHTML=clients.map(c=>`<tr><td>${c.photo?`<img src="${c.photo}" class="client-img">`:'👤'}</td><td>${c.name}</td><td>${c.phone}</td><td>${c.guarantor||'-'}</td></tr>`).join('');document.getElementById('lClient').innerHTML='<option value="">Select Client</option>'+clients.map(c=>`<option value="${c.id}">${c.name} - ${c.phone}</option>`).join('');document.getElementById('loanTable').innerHTML=loans.map(l=>`<tr><td>${l.clientName}</td><td>${l.principal.toLocaleString()}</td><td>${l.total.toLocaleString()}</td><td style="color:${l.balance==0?'green':'red'}">${l.balance.toLocaleString()}</td><td>${l.plan}</td></tr>`).join('');document.getElementById('payLoan').innerHTML='<option value="">Select Loan to Collect</option>'+loans.filter(l=>l.balance>0).map(l=>`<option value="${l.id}">${l.clientName} - Bal UGX ${l.balance.toLocaleString()}</option>`).join('');document.getElementById('cashTable').innerHTML=cash.slice(-50).reverse().map(c=>`<tr><td>${c.time}</td><td><span class="tag ${c.amount>0?'tag-paid':'tag-late'}">${c.type}</span></td><td>${c.client}</td><td>${c.method}</td><td>${c.amount.toLocaleString()}</td><td>${c.by}</td></tr>`).join('');document.getElementById('cashBalance').innerText='UGX '+cash.reduce((s,c)=>s+c.amount,0).toLocaleString();document.getElementById('dueTable').innerHTML=loans.filter(l=>l.balance>0).slice(0,5).map(l=>`<tr><td>${l.clientName}</td><td>UGX ${l.balance.toLocaleString()}</td><td><span class="tag ${l.balance==0?'tag-paid':l.paid==0?'tag-late':'tag-due'}">${l.balance==0?'PAID':l.paid==0?'DUE':'PARTIAL'}</span></td></tr>`).join('')||'<tr><td colspan=3>No due loans</td></tr>';let amt=parseFloat(document.getElementById('lAmount')?.value)||0;let intr=parseFloat(document.getElementById('lInterest')?.value)||0;if(amt){document.getElementById('calcTotal').innerText='UGX '+(amt+amt*intr/100).toLocaleString()}}
+document.getElementById('lAmount')?.addEventListener('input',renderAll);document.getElementById('lInterest')?.addEventListener('input',renderAll);
+function exportCSV(){let csv='Type,Client,Amount,Method,By,Time\n';cash.forEach(c=>{csv+=`${c.type},${c.client},${c.amount},${c.method},${c.by},${c.time}\n`});let blob=new Blob([csv],{type:'text/csv'});let url=URL.createObjectURL(blob);let a=document.createElement('a');a.href=url;a.download='ABRA_FINANCES_Report.csv';a.click();}
+function clearAll(){if(currentRole!=='Manager'){alert('Only Manager can clear!');return}if(confirm('Delete ALL ABRA data?')){localStorage.clear();clients=[];loans=[];cash=[];renderAll();}}
+renderAll();
+</script>
+</body>
+  </html>
